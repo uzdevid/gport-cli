@@ -1,7 +1,7 @@
 package main
 
-import "gport/cmd"
+import "gport/Command"
 
 func main() {
-	cmd.Execute()
+	Command.Execute()
 }
