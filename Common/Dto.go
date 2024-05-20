@@ -8,7 +8,7 @@ type CallLocalAddress struct {
 	Message
 	Payload struct {
 		RequestId    string `json:"requestId"`
-		ConnectionId int64  `json:"connectionId"`
+		ConnectionId string `json:"connectionId"`
 		Address      string `json:"address"`
 		Request      struct {
 			Method  string                  `json:"method"`
@@ -22,7 +22,7 @@ type ResponseContent struct {
 	Method  string `json:"method"`
 	Payload struct {
 		RequestId    string `json:"requestId"`
-		ConnectionId int64  `json:"connectionId"`
+		ConnectionId string `json:"connectionId"`
 		Content      struct {
 			Type   string `json:"type"`
 			Base64 string `json:"base64"`
