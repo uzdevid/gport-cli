@@ -3,11 +3,10 @@ package Method
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"gport/Common"
 )
 
-func SharingResponse(ws *websocket.Conn, rawMessage []byte, writeChan chan []byte) {
+func SharingResponse(rawMessage []byte) {
 	var message Common.SharingResponse
 
 	if err := json.Unmarshal(rawMessage, &message); err != nil {

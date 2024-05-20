@@ -33,6 +33,7 @@ type ResponseContent struct {
 type Sharing struct {
 	Method  string `json:"method"`
 	Payload struct {
+		Domain       string `json:"domain"`
 		LocalAddress string `json:"localAddress"`
 	} `json:"payload"`
 }
@@ -44,4 +45,12 @@ type SharingResponse struct {
 		Key     string            `json:"key"`
 		Proxies map[string]string `json:"proxies"`
 	} `json:"payload"`
+}
+
+type PrintMessage struct {
+	Message
+	Payload struct {
+		Message string `json:"message"`
+		Exit    bool   `json:"exit"`
+	}
 }

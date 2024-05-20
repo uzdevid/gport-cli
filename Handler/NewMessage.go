@@ -6,9 +6,10 @@ import (
 	"github.com/gorilla/websocket"
 	"gport/Common"
 	"gport/Handler/Method"
+	"os"
 )
 
-func NewMessage(ws *websocket.Conn, rawMessage []byte, writeChan chan []byte) {
+func NewMessage(ws *websocket.Conn, rawMessage []byte, writeChan chan []byte, interrupt chan os.Signal) {
 	var message Common.Message
 
 	if err := json.Unmarshal(rawMessage, &message); err != nil {
@@ -18,8 +19,10 @@ func NewMessage(ws *websocket.Conn, rawMessage []byte, writeChan chan []byte) {
 
 	switch message.Method {
 	case "CallLocalAddress":
-		go Method.CallLocalAddress(ws, rawMessage, writeChan)
+		go Method.CallLocalAddress(rawMessage, writeChan)
 	case "SharingResponse":
-		go Method.SharingResponse(ws, rawMessage, writeChan)
+		go Method.SharingResponse(rawMessage)
+	case "PrintMessage":
+		go Method.PrintMessage(rawMessage, interrupt)
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"gport/Common"
 	"io"
 	"io/ioutil"
@@ -41,7 +40,7 @@ func statusColor(statusCode int) string {
 	}
 }
 
-func CallLocalAddress(ws *websocket.Conn, rawMessage []byte, writeChan chan []byte) {
+func CallLocalAddress(rawMessage []byte, writeChan chan []byte) {
 	var message Common.CallLocalAddress
 
 	if err := json.Unmarshal(rawMessage, &message); err != nil {

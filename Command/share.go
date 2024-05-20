@@ -9,10 +9,16 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
 	"gport/Handler"
+)
+
+var (
+	mu       sync.Mutex
+	isClosed bool
 )
 
 func writePump(ws *websocket.Conn, writeChan chan []byte) {
@@ -33,24 +39,26 @@ var shareCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		address, _ := cmd.Flags().GetString("address")
 		server, _ := cmd.Flags().GetString("server")
+		domain, _ := cmd.Flags().GetString("domain")
 
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
-		url := fmt.Sprintf("wss://%s", server)
-
-		ws, _, err := websocket.DefaultDialer.Dial(url, http.Header{"Cli-Version": []string{Common.CliVersion}})
+		ws, _, err := websocket.DefaultDialer.Dial(server, http.Header{"Cli-Version": []string{Common.CliVersion}})
 
 		if err != nil {
 			fmt.Println("Error connecting to proxy server:", err)
 			return
 		}
 
-		defer ws.Close()
+		defer func(ws *websocket.Conn) {
+			_ = ws.Close()
+		}(ws)
 
 		sharingMessage := Common.Sharing{}
 		sharingMessage.Method = "sharing:share"
 		sharingMessage.Payload.LocalAddress = address
+		sharingMessage.Payload.Domain = domain
 
 		sharingMessageMarshal, _ := json.Marshal(sharingMessage)
 
@@ -63,15 +71,23 @@ var shareCmd = &cobra.Command{
 
 		go func() {
 			defer close(done)
+
 			for {
 				_, message, err := ws.ReadMessage()
+
+				mu.Lock()
+				if isClosed {
+					mu.Unlock()
+					return
+				}
+				mu.Unlock()
 
 				if err != nil {
 					fmt.Println("Error reading message:", err)
 					return
 				}
 
-				Handler.NewMessage(ws, message, writeChan)
+				Handler.NewMessage(ws, message, writeChan, interrupt)
 			}
 		}()
 
@@ -80,12 +96,13 @@ var shareCmd = &cobra.Command{
 			case <-done:
 				return
 			case <-interrupt:
-				fmt.Println("Interrupt received, closing connection...")
-				close(writeChan) // Close the write channel to terminate the writePump
-				if err := ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
-					fmt.Println("Error closing connection:", err)
-					return
-				}
+				close(writeChan)
+
+				mu.Lock()
+				isClosed = true
+				_ = ws.Close()
+				mu.Unlock()
+
 				select {
 				case <-done:
 				case <-time.After(time.Second):
@@ -98,7 +115,10 @@ var shareCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(shareCmd)
-	shareCmd.Flags().StringP("server", "s", "gport.uzdevid.com/wss", "Server address")
+	shareCmd.Flags().StringP("server", "s", "wss://gport.uz/wss", "Server address")
 
-	shareCmd.Flags().StringP("address", "a", "http://localhost", "Local address")
+	shareCmd.Flags().StringP("address", "a", "", "Local address")
+	_ = shareCmd.MarkFlagRequired("address")
+
+	shareCmd.Flags().String("domain", "", "Remote domain (if exists)")
 }
