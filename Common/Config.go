@@ -1,5 +1,5 @@
 package Common
 
 const (
-	CliVersion = "b-0.0.0"
+	CliVersion = "1.0.1"
 )
