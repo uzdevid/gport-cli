@@ -100,7 +100,14 @@ var shareCmd = &cobra.Command{
 
 				mu.Lock()
 				isClosed = true
+
+				if err := ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
+					fmt.Println("Error closing connection:", err)
+					return
+				}
+
 				_ = ws.Close()
+
 				mu.Unlock()
 
 				select {
