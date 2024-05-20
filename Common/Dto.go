@@ -40,9 +40,8 @@ type Sharing struct {
 type SharingResponse struct {
 	Method  string `json:"method"`
 	Payload struct {
-		Id            int64  `json:"id"`
-		Key           string `json:"key"`
-		RemoteAddress string `json:"remoteAddress"`
-		LocalAddress  string `json:"localAddress"`
+		Id      int64             `json:"id"`
+		Key     string            `json:"key"`
+		Proxies map[string]string `json:"proxies"`
 	} `json:"payload"`
 }

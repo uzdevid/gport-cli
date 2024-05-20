@@ -15,5 +15,11 @@ func SharingResponse(ws *websocket.Conn, rawMessage []byte, writeChan chan []byt
 		return
 	}
 
-	fmt.Println(fmt.Sprintf("Proxy installed %s => %s", message.Payload.RemoteAddress, message.Payload.LocalAddress))
+	fmt.Println("-----------------------------------------------------------------")
+
+	for remote, local := range message.Payload.Proxies {
+		fmt.Println(fmt.Sprintf("Proxy installed %s => %s", remote, local))
+	}
+
+	fmt.Println("-----------------------------------------------------------------")
 }
