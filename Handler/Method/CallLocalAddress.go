@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func compressData(data string) (string, error) {
@@ -76,7 +77,7 @@ func CallLocalAddress(rawMessage []byte, writeChan chan []byte) {
 		return
 	}
 
-	fmt.Println(strings.ToUpper(message.Payload.Request.Method), statusColor(response.StatusCode), response.Status, u.Path, "\x1b[0m")
+	fmt.Println(time.Now().Format("15:04:05"), strings.ToUpper(message.Payload.Request.Method), statusColor(response.StatusCode), response.Status, u.Path, "\x1b[0m")
 
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
