@@ -59,6 +59,12 @@ func CallLocalAddress(rawMessage []byte, writeChan chan []byte) {
 
 	request, err := http.NewRequest(message.Payload.Request.Method, message.Payload.Address, reader)
 
+	for key, values := range message.Payload.Request.Headers {
+		for _, value := range values {
+			request.Header.Add(key, value)
+		}
+	}
+
 	client := http.Client{}
 
 	response, err := client.Do(request)
