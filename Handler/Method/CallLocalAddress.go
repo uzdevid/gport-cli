@@ -58,7 +58,7 @@ func CallLocalAddress(rawMessage []byte, writeChan chan []byte) {
 		return
 	}
 
-	request, err := http.NewRequest(message.Payload.Request.Method, message.Payload.Address, reader)
+	request, err := http.NewRequest(message.Payload.Request.Method, message.Payload.Request.Url, reader)
 
 	for key, values := range message.Payload.Request.Headers {
 		for _, value := range values {
@@ -70,7 +70,7 @@ func CallLocalAddress(rawMessage []byte, writeChan chan []byte) {
 
 	response, err := client.Do(request)
 
-	u, _ := url.Parse(message.Payload.Address)
+	u, _ := url.Parse(message.Payload.Request.Url)
 
 	if err != nil {
 		fmt.Println("\x1b[31m", "Error", u.Path, "-", err, "\x1b[0m")
@@ -99,11 +99,18 @@ func CallLocalAddress(rawMessage []byte, writeChan chan []byte) {
 
 	callback := Common.ResponseContent{}
 
+	headers := make(map[string][]string)
+
+	for key, values := range response.Header {
+		headers[key] = values
+	}
+
 	callback.Method = "remote-client:response"
-	callback.Payload.RequestId = message.Payload.RequestId
-	callback.Payload.ConnectionId = message.Payload.ConnectionId
-	callback.Payload.Content.Type = response.Header.Get("Content-Type")
-	callback.Payload.Content.Base64 = compressedContent
+	callback.Payload.TrafficId = message.Payload.TrafficId
+	callback.Payload.ClientId = message.Payload.ClientId
+
+	callback.Payload.Response.Headers = headers
+	callback.Payload.Response.Body = compressedContent
 
 	callbackMessage, err := json.Marshal(callback)
 

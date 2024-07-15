@@ -7,10 +7,10 @@ type Message struct {
 type CallLocalAddress struct {
 	Message
 	Payload struct {
-		RequestId    string `json:"requestId"`
-		ConnectionId string `json:"connectionId"`
-		Address      string `json:"address"`
-		Request      struct {
+		TrafficId int64  `json:"trafficId"`
+		ClientId  string `json:"clientId"`
+		Request   struct {
+			Url     string                  `json:"url"`
 			Method  string                  `json:"method"`
 			Headers map[string][]string     `json:"headers"`
 			Body    *map[string]interface{} `json:"body"`
@@ -21,12 +21,12 @@ type CallLocalAddress struct {
 type ResponseContent struct {
 	Method  string `json:"method"`
 	Payload struct {
-		RequestId    string `json:"requestId"`
-		ConnectionId string `json:"connectionId"`
-		Content      struct {
-			Type   string `json:"type"`
-			Base64 string `json:"base64"`
-		} `json:"content"`
+		TrafficId int64  `json:"trafficId"`
+		ClientId  string `json:"clientId"`
+		Response  struct {
+			Headers map[string][]string `json:"headers"`
+			Body    string              `json:"body"`
+		} `json:"response"`
 	} `json:"payload"`
 }
 
