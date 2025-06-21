@@ -32,10 +32,9 @@ func writePump(ws *websocket.Conn, writeChan chan []byte) {
 
 // shareCmd represents the share command
 var shareCmd = &cobra.Command{
-	Use:     "share",
-	Aliases: []string{"sh"},
-	Short:   "For share local url address",
-	Long:    ``,
+	Use:   "http",
+	Short: "For share local url address",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		address, _ := cmd.Flags().GetString("address")
 		server, _ := cmd.Flags().GetString("server")
